@@ -1,0 +1,1 @@
+{ "SolutionInfo": { "Status": 9, "Runtime": "3600.28178691864", "ObjVal": "1e+100", "ObjBound": "2.0999997240189867e+04", "ObjBoundC": "2.0999997240189867e+04", "MIPGap": "1e+100", "IterCount": "6925496", "BarIterCount": 0, "NodeCount": "30932", "SolCount": 0}}
