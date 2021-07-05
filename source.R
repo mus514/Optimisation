@@ -42,6 +42,14 @@ importData <- function(x)
     
   }
   
+  data[,1] <- sapply(data[,1], as.numeric)
+  data[,1] <- sapply(data[,1], as.character)
+  
+  for(i in 3:25)
+  {
+    data[ ,i] <- sapply(data[ ,i], as.numeric)
+  }
+  
   data
   
 }
