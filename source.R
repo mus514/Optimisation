@@ -1,4 +1,5 @@
-library("openxslx")
+library("readxl")
+setwd("~/Dropbox/ResultsSym")
 
 importData <- function(x)
 {
