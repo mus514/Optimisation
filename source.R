@@ -1,22 +1,23 @@
+library("openxslx")
+
 importData <- function(x)
 {
-  if(x == "arf")
+  if(x == "ARF" || x == "SF")
   {
-    
+    data <- read_excel("ARF - SF.xlsx", sheet = x)
   }
   
-  if(x == "sf")
+  if(grep("vc", x) == 1)
   {
-  
+    data <- read_excel("SBC - VC.xlsx", sheet = paste0("vi_" , x))
   }
   
-  if(x == "sbc-vc")
+  else
   {
-    
+    data <- read_excel("SBC.xlsx", sheet = paste0("vi_", x))
   }
   
-  if(x == "sbc-vc")
-  {
-    
-  }
+  data
+ 
 }
+
