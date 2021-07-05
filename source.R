@@ -42,5 +42,3 @@ importData <- function(x)
   
 }
 
-y<- importData("cos")
-
