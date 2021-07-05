@@ -7,7 +7,7 @@ importData <- function(x)
     data <- read_excel("ARF - SF.xlsx", sheet = x)
   }
   
-  if(grep("vc", x) == 1)
+  if(grepl("vc+", x))
   {
     data <- read_excel("SBC - VC.xlsx", sheet = paste0("vi_" , x))
   }
@@ -20,4 +20,6 @@ importData <- function(x)
   data
  
 }
+
+y<- importData("cus")
 
