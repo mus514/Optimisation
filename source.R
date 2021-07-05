@@ -14,7 +14,7 @@ importData <- function(x)
       data <- read_excel("SBC - VC.xlsx", sheet = paste0("vi_" , x))
     }                 
   
-    if(!grepl("vc+", x))
+    else
     {
       data <- read_excel("SBC.xlsx", sheet = paste0("vi_", x))
     }
