@@ -43,11 +43,11 @@ importData <- function(x)
   }
   
   data[,1] <- sapply(data[,1], as.numeric)
-  data[,1] <- sapply(data[,1], as.character)
+  data[,2] <- sapply(data[,2], as.character)
   
   for(i in 3:25)
   {
-    data[ ,i] <- sapply(data[ ,i], as.numeric)
+    data[ ,i] <- sapply(data[ ,i], as.numeric, na.rm = T)
   }
   
   data
