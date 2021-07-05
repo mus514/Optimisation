@@ -7,14 +7,17 @@ importData <- function(x)
     data <- read_excel("ARF - SF.xlsx", sheet = x)
   }
   
-  if(grepl("vc+", x) & x != "SF" & x!= "ARF")
+  if(x != "SF" & x!= "ARF")
   {
-    data <- read_excel("SBC - VC.xlsx", sheet = paste0("vi_" , x))
-  }                 
+    if(grepl("vc+", x))
+    {
+      data <- read_excel("SBC - VC.xlsx", sheet = paste0("vi_" , x))
+    }                 
   
-  if(!grepl("vc+", x) & x != "SF" & x!= "ARF")
-  {
-    data <- read_excel("SBC.xlsx", sheet = paste0("vi_", x))
+    if(!grepl("vc+", x))
+    {
+      data <- read_excel("SBC.xlsx", sheet = paste0("vi_", x))
+    }
   }
   
   data <- data[2:2561, c(1, 2, 4, 6, 7, 8, 9, 16, 17, 18, 19, 
