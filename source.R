@@ -1,18 +1,25 @@
 library("readxl")
 setwd("~/Google drive/data_analysis")
 
+## Import data
+
 importData <- function(x)
 {
                         
   if(x == "SBC.xlsx")
+  {
     sheet <- tail(excel_sheets(x), 13)
+  }
   
   else if(grepl("ARF", x))
+  {
     sheet <- excel_sheets(x)
+  }
   
   else
+  {
     sheet <- tail(excel_sheets(x), 12)
-    
+  }
   
   data_list <- list()
   
@@ -53,6 +60,13 @@ importData <- function(x)
   }
   
   names(data_list) <- sheet
+  
+  
   data_list
+  
 }
+
+
+
+
 
