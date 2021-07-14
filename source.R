@@ -1,61 +1,58 @@
 library("readxl")
-setwd("~/Dropbox/ResultsSym")
+setwd("~/Google drive/data_analysis")
 
 importData <- function(x)
 {
-  if(x == "ARF" || x == "SF")
-  {
-    data <- read_excel("ARF - SF.xlsx", sheet = x)
-  }
+                        
+  if(x == "SBC.xlsx")
+    sheet <- tail(excel_sheets(x), 13)
   
-  else if(x == "vc")
-  {
-    data <- read_excel("SBC.xlsx", sheet = paste0("vi_" , x))
-  }
+  else if(grepl("ARF", x))
+    sheet <- excel_sheets(x)
   
   else
+    sheet <- tail(excel_sheets(x), 12)
+    
+  
+  data_list <- list()
+  
+  for(i in 1:length(sheet))
   {
-    if(grepl("vc+", x))
+    data <- read_excel(x, sheet = sheet[i])
+    
+    data <- data[2:2561, c(1, 2, 4, 5, 6, 7, 8, 9, 16, 17, 18, 19, 
+                           20, 21, 28, 29, 30, 31, 32, 33, 40, 41,
+                           42, 43, 44, 45, 52, 53)]
+    
+    names(data)[1:4] <- c("H", "Inventory", "Ordering", "n")
+    
+    name <- c("UB", "LB", "Gap", "Time", "Opt", "Unsolved")
+    
+    k <- 2
+    
+    for(a in c(5, 11, 17, 23))
     {
-      data <- read_excel("SBC - VC.xlsx", sheet = paste0("vi_" , x))
-    }                 
-  
-    else
-    {
-      data <- read_excel("SBC.xlsx", sheet = paste0("vi_", x))
-    }
-  }
-  
-  data <- data[2:2561, c(1, 2, 4, 6, 7, 8, 9, 16, 17, 18, 19, 
-                   20, 21, 28, 29, 30, 31, 32, 33, 40, 41,
-                   42, 43, 44, 45, 52, 53)]
-  
-  names(data)[1:3] <- c("H", "Inventory", "n")
-  
-  name <- c("UB", "LB", "Gap", "Time", "Opt", "Unsolved")
-  
-  k <- 2
-  
-  for(i in c(4, 10, 16, 22))
-  {
-    for(j in 0:5)
-    {
-      names(data)[i+j] <- paste0("V", k,"_",name[j+1])
+      for(j in 0:5)
+      {
+        names(data)[a+j] <- paste0("V", k,"_",name[j+1])
+      }
+      
+      k <- k + 1
     }
     
-    k <- k + 1
+    data[,1] <- sapply(data[,1], as.numeric)
+    data[,2] <- sapply(data[,2], as.character)
+    
+    for(s in 3:28)
+    {
+      data[ ,s] <- sapply(data[ ,s], as.numeric)
+    }
+    
+    data_list[[i]] <- data
     
   }
   
-  data[,1] <- sapply(data[,1], as.numeric)
-  data[,2] <- sapply(data[,2], as.character)
-  
-  for(i in 3:25)
-  {
-    data[ ,i] <- sapply(data[ ,i], as.numeric, na.rm = T)
-  }
-  
-  data
-  
+  names(data_list) <- sheet
+  data_list
 }
 
