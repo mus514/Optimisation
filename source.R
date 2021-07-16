@@ -1,7 +1,9 @@
 library("readxl")
+library("writexl")
+library("stringr")
 setwd("~/Google drive/data_analysis")
 
-## Import data
+### Import data
 
 importData <- function(x)
 {
@@ -59,14 +61,61 @@ importData <- function(x)
     
   }
   
+  sheet <- str_remove(sheet, "vi_")
   names(data_list) <- sheet
-  
-  
   data_list
   
 }
 
 
+sbc <- importData("SBC.xlsx")
+arf_sf <- importData("ARF - SF.xlsx")
+sbc_vc <- importData("SBC - VC.xlsx")
 
+### Tables and Statistics
 
+basic_calcul <- function(liste, sheet, opt_unsolved = FALSE)
+{
+  data <- liste[[sheet]]
+  data <- data[, -1:-4]
+  
+  resultat <- 0
+
+  if(opt_unsolved)
+  {
+    name <- names(data)
+    name <- name[str_detect(name, c("Opt", "Unsolved"))]
+    j <- 1
+    
+    for(i in name)
+    {
+      resultat[j] <- sum(data[[i]], na.rm = T)
+      j <- j + 1
+    }
+  }
+  
+  else
+  {
+    name <- names(data)
+    j <- 1
+    
+    for(i in name)
+    {
+      if(grepl("Opt", i) || grepl("Unsolved", i))
+      {
+        resultat[j] <- sum(data[[i]], na.rm = T)
+      }
+      
+      else
+      {
+        resultat[j] <- mean(data[[i]], na.rm = T)
+        
+      }
+      
+      j <- j + 1
+    }
+  }
+  
+  resultat
+}
 
