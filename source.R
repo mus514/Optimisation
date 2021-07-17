@@ -381,9 +381,41 @@ tri_calculs <- function(liste, sheet, h = 0, inv = "", m = 0, ord = 0,
 
 tri_best <- function(liste, sheet, ord)
 {
+  data <- liste[[sheet]]
   
+  data <- subset(data, data[["Inventory"]] %in% "high" & 
+                   data[["Ordering"]] %in%ord)
   
+  data <- data[ ,c(9, 10, 15, 16, 21, 22, 27, 28)]
   
+  result_1 <- apply(data, 2, sum, na.rm = T)
+  
+  data <- liste[[sheet]]
+  
+  data <- subset(data, data[["Inventory"]] %in% "low" & 
+                   data[["Ordering"]] %in%ord)
+  
+  data <- data[ ,c(9, 10, 15, 16, 21, 22, 27, 28)]
+  
+  result_2 <- apply(data, 2, sum, na.rm = T)
+  
+  result <- rep(0, 16)
+  j <- 1
+  
+  for(i in seq(from = 1, to = 15, by = 2))
+  {
+    result[i] <- result_1[j]
+    j <- j + 1
+  }
+  
+  j <- 1
+  for(i in seq(from = 2, to = 16, by = 2))
+  {
+    result[i] <- result_2[j]
+    j <- j + 1
+  }
+  
+  result
 }
 
 
