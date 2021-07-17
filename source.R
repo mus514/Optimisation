@@ -74,9 +74,9 @@ sbc_vc <- importData("SBC - VC.xlsx")
 
 
 
-### Tables and Statistics
+### Satistics Calcul
 
-regular_calcul <- function(liste, sheet, opt_unsolved = FALSE)
+basic_calcul <- function(liste, sheet, opt_unsolved = FALSE)
 {
   data <- liste[[sheet]]
   data <- data[, -1:-4]
@@ -122,134 +122,8 @@ regular_calcul <- function(liste, sheet, opt_unsolved = FALSE)
 }
 
 
-### Tables
-
-data_list <- list()
-
-title_1 <- c(c("", "2 Vehicles", rep("", 5), "3 Vehicles", rep("", 5)), 
-             "4 Vehicles", rep("", 5), "5 Vehicles", rep("", 5))
-
-title_2 <- c("Average", rep(NA, 3), "Sum", NA, "Average", rep(NA, 3), 
-             "Sum", NA, "Average", rep(NA, 3), "Sum", NA, "Average", 
-             rep(NA, 3), "Sum", NA)
-
-title_3 <- c(rep(c("UB", "LB", "Gap", "Time", "#Opt", "#Unsolved"), 4))
-
-title_4 <- c("SF", "vc", "vr", "vc+vr")
-
-title_5 <- c("hc1_full", "hc2", "hc3", "cos", "qua", "cus", "lex_full")
-
-# Standard Formulation 
-temp <- basic_calcul(arf_sf, "SF")
-
-temp <- rbind(temp, basic_calcul(sbc, "vc"))
-
-temp <- rbind(temp, basic_calcul(sbc, "vr"))
-
-temp <- rbind(temp, basic_calcul(sbc_vc, "vc+vr"))
-
-temp <- rbind(title_2, title_3 ,temp)
-
-temp <- cbind(c(rep("", 2), title_4), temp)
-
-temp <- as.data.frame(temp)
-
-names(temp) <- title_1
-
-data_list[["Standard_formulation"]]<- temp
-
-# SBC
-temp <- vector()
-
-for(i in title_5)
-{
-  temp <- rbind(temp, basic_calcul(sbc, i))
-}
-
-temp <- rbind(title_2, title_3 ,temp)
-
-temp <- cbind(c(rep("", 2), title_5), temp)
-
-temp <- as.data.frame(temp)
-
-names(temp) <- title_1
-
-data_list[["Symetry_breaking"]]<- temp
-
-
-# Conparaison of the reults obtained with ARF vs SF
-
-temp <- vector()
-
-temp <- rbind(temp, basic_calcul(arf_sf, "SF", TRUE))
-
-temp <- rbind(temp, basic_calcul(arf_sf, "ARF", TRUE))
-
-temp <- rbind(rep(c("#Opt", "#Unsolved"), 4), temp)
-
-temp <- cbind(c("", "SF", "ARF"), temp)
-
-temp <- as.data.frame(temp)
-
-names(temp) <- c("", "2 Vehicles", "", "3 Vehicles","", "4 Vehicles","", 
-                 "5 Vehicles", "")
-
-data_list[["Comparison_AFR_SF"]]<- temp
-
-## Combined VC result
-
-temp <- vector()
-
-name_1 <- names(sbc)[str_detect(names(sbc), "vc")]
-
-
-for(i in name_1)
-{
-  temp <- rbind(temp, basic_calcul(sbc, i))
-}
-
-name_2 <- names(sbc_vc)
-
-for(i in name_2)
-{
-  temp <- rbind(temp, basic_calcul(sbc_vc, i))
-}
-
-temp <- rbind(title_2, title_3, temp)
-
-temp <- cbind(c("", "", name_1, name_2), temp)
-
-temp <- as.data.frame(temp)
-
-names(temp) <- title_1
-
-data_list[["Combined VC results"]] <- temp
-
-
-## ARF vs VC
-
-temp <- vector()
-
-temp <- rbind(temp, basic_calcul(sbc, "vc"))
-
-temp <- rbind(temp, basic_calcul(arf_sf, "ARF"))
-
-temp <- rbind(title_2, title_3, temp)
-
-temp <- cbind(c("", "", "VC", "ARF"), temp)
-
-temp <- as.data.frame(temp)
-
-names(temp) <- title_1
-
-data_list[["ARF vs VC"]] <- temp
-
-##write_xlsx(data_list, "resultat_basic.xlsx")
-
 
 # Conparaison of the complex results 
-
-
 
 tri_calculs <- function(liste, sheet, h = 0, inv = "", m = 0, ord = 0, 
                         col = "", vehicule, best_case = FALSE)
@@ -291,7 +165,6 @@ tri_calculs <- function(liste, sheet, h = 0, inv = "", m = 0, ord = 0,
     resultat[c(2, 3)] <- format(resultat[c(2, 3)] * 100, scientific = F)
   }
   
-  ##
   else if(ord != 0 & (m & h) == 0 & inv == "")
   {
     data <- subset(data, data[["Ordering"]] %in% ord)
@@ -343,7 +216,6 @@ tri_calculs <- function(liste, sheet, h = 0, inv = "", m = 0, ord = 0,
       }
     }
   }
-  ##
   
   else if(inv != "" & (h & m & ord) == 0)
   {
@@ -378,7 +250,7 @@ tri_calculs <- function(liste, sheet, h = 0, inv = "", m = 0, ord = 0,
   resultat
 }
 
-
+# tri and calcul fot the best
 tri_best <- function(liste, sheet, ord)
 {
   data <- liste[[sheet]]
@@ -418,6 +290,196 @@ tri_best <- function(liste, sheet, ord)
   result
 }
 
+### Tables
+
+data_cons <- function()
+{
+  
+  data_list <- list()
+  
+  title_1 <- c(c("", "2 Vehicles", rep("", 5), "3 Vehicles", rep("", 5)), 
+               "4 Vehicles", rep("", 5), "5 Vehicles", rep("", 5))
+  
+  title_2 <- c("Average", rep(NA, 3), "Sum", NA, "Average", rep(NA, 3), 
+               "Sum", NA, "Average", rep(NA, 3), "Sum", NA, "Average", 
+               rep(NA, 3), "Sum", NA)
+  
+  title_3 <- c(rep(c("UB", "LB", "Gap", "Time", "#Opt", "#Unsolved"), 4))
+  
+  title_4 <- c("SF", "vc", "vr", "vc+vr")
+  
+  title_5 <- c("hc1_full", "hc2", "hc3", "cos", "qua", "cus", "lex_full")
+  
+  # Standard Formulation 
+  
+  temp <- basic_calcul(arf_sf, "SF")
+  
+  temp <- rbind(temp, basic_calcul(sbc, "vc"))
+  
+  temp <- rbind(temp, basic_calcul(sbc, "vr"))
+  
+  temp <- rbind(temp, basic_calcul(sbc_vc, "vc+vr"))
+  
+  temp <- rbind(title_2, title_3 ,temp)
+  
+  temp <- cbind(c(rep("", 2), title_4), temp)
+  
+  temp <- as.data.frame(temp)
+  
+  names(temp) <- title_1
+  
+  data_list[["Standard_formulation"]]<- temp
+  
+  # SBC
+  
+  temp <- vector()
+  
+  for(i in title_5)
+  {
+    temp <- rbind(temp, basic_calcul(sbc, i))
+  }
+  
+  temp <- rbind(title_2, title_3 ,temp)
+  
+  temp <- cbind(c(rep("", 2), title_5), temp)
+  
+  temp <- as.data.frame(temp)
+  
+  names(temp) <- title_1
+  
+  data_list[["Symetry_breaking"]]<- temp
+  
+  
+  # Conparaison of the reults obtained with ARF vs SF
+  
+  temp <- vector()
+  
+  temp <- rbind(temp, basic_calcul(arf_sf, "SF", TRUE))
+  
+  temp <- rbind(temp, basic_calcul(arf_sf, "ARF", TRUE))
+  
+  temp <- rbind(rep(c("#Opt", "#Unsolved"), 4), temp)
+  
+  temp <- cbind(c("", "SF", "ARF"), temp)
+  
+  temp <- as.data.frame(temp)
+  
+  names(temp) <- c("", "2 Vehicles", "", "3 Vehicles","", "4 Vehicles","", 
+                   "5 Vehicles", "")
+  
+  data_list[["Comparison_AFR_SF"]]<- temp
+  
+  ## Combined VC result
+  
+  temp <- vector()
+  
+  name_1 <- names(sbc)[str_detect(names(sbc), "vc")]
+  
+  
+  for(i in name_1)
+  {
+    temp <- rbind(temp, basic_calcul(sbc, i))
+  }
+  
+  name_2 <- names(sbc_vc)
+  
+  for(i in name_2)
+  {
+    temp <- rbind(temp, basic_calcul(sbc_vc, i))
+  }
+  
+  temp <- rbind(title_2, title_3, temp)
+  
+  temp <- cbind(c("", "", name_1, name_2), temp)
+  
+  temp <- as.data.frame(temp)
+  
+  names(temp) <- title_1
+  
+  data_list[["Combined VC results"]] <- temp
+  
+  
+  ## ARF vs VC
+  
+  temp <- vector()
+  
+  temp <- rbind(temp, basic_calcul(sbc, "vc"))
+  
+  temp <- rbind(temp, basic_calcul(arf_sf, "ARF"))
+  
+  temp <- rbind(title_2, title_3, temp)
+  
+  temp <- cbind(c("", "", "VC", "ARF"), temp)
+  
+  temp <- as.data.frame(temp)
+  
+  names(temp) <- title_1
+  
+  data_list[["ARF vs VC"]] <- temp
+  
+  # Comparison ARF vs SF with subset
+  
+  title_6 <- c("H", 3, rep("", 9), 3, rep("", 9), 6, rep("", 5), 6, rep("",5))
+  
+  title_7 <- c("Inventory", "High", rep("", 9), "Low", rep("", 9),
+               "High", rep("", 5), "Low", rep("",5))
+  
+  title_8 <- c("n", rep(seq(from = 5, to = 50, by = 5), 2), 
+               rep(seq(from = 5, to = 30, by = 5), 2))
+  
+  title_9 <- rep(c("Gap", "%Opt", "%Unsolved", "time"), 8)
+  
+  title_10 <- c(rep("", 3), "ARF", rep("", 3), "SF", rep("", 3))
+  
+  temp <- vector()
+  temp_1 <- vector()
+
+  for(i in 2:5)
+  {
+    for(j in c("ARF", "SF"))
+    {
+      for(k in c(3, 6))
+      {
+        for(l in c("high", "low"))
+        {
+          if(k == 3)
+          {
+            for(s in seq(from = 5, to = 50, by = 5))
+            {
+              temp <- rbind(temp, tri_calculs(arf_sf, j, k, l, s, vehicule = i))
+            }
+          }
+          
+          else
+          {
+            for(s in seq(from = 5, to = 30, by = 5))
+            {
+              temp <- rbind(temp, tri_calculs(arf_sf, j, k, l, s, vehicule = i))
+            }
+          }
+        }
+      }
+      
+      temp_1 <- cbind(temp_1, temp)
+      temp <- vector()
+    }
+  }
+  
+  
+    
+    
+    
+    
+    
+    
+  
+  
+  
+  
+  
+  return (write_xlsx(data_list, "resultat_basic.xlsx"))
+  
+}
 
 
 
@@ -425,15 +487,5 @@ tri_best <- function(liste, sheet, ord)
 
 
 
-
-title_6 <- c("H", 3, rep("", 9), 3, rep("", 9), 6, rep("", 5), 6, rep("",5))
-
-title_7 <- c("Inventory", "High", rep("", 9), "Low", rep("", 9),
-             "High", rep("", 5), "Low", rep("",5))
-
-title_8 <- c("n", rep(seq(from = 5, to = 50, by = 5), 2), 
-             rep(seq(from = 5, to = 30, by = 5), 2))
-
-title_9 <- rep(c("Gap", "%Opt", "%Unsolved", "time"), 8)
 
 
