@@ -245,4 +245,49 @@ names(temp) <- title_1
 
 data_list[["ARF vs VC"]] <- temp
 
-write_xlsx(data_list, "resultat_basic.xlsx")
+##write_xlsx(data_list, "resultat_basic.xlsx")
+
+
+# Conparaison of the reults obtained with ARF vs SF Subset
+
+title_6 <- c("H", 3, rep("", 9), 3, rep("", 9), 6, rep("", 5), 6, rep("",5))
+
+title_7 <- c("Inventory", "High", rep("", 9), "Low", rep("", 9),
+             "High", rep("", 5), "Low", rep("",5))
+
+title_8 <- c("n", rep(seq(from = 5, to = 50, by = 5), 2), 
+             rep(seq(from = 5, to = 30, by = 5), 2))
+
+title_9 <- rep(c("Gap", "%Opt", "%Unsolved", "time"), 8)
+
+tri_data <- function(liste, sheet, h, inv, n, vehicule)
+{
+  data <-liste[[sheet]]
+  
+  data <- subset(data, data[["H"]] %in% h & data[["Inventory"]] %in% inv &
+                   data[["n"]] %in% n)
+  
+  data <- data[, -1:-4]
+  
+  if(vehicule == 2)
+  {
+    data <- data[, c(3, 5, 6, 4)]
+  }
+  
+  else if(vehicule == 3)
+  {
+    data <- data[, c(3, 5, 6, 4) + 6]
+  }
+  
+  else if(vehicule == 4)
+  {
+    data <- data[, c(3, 5, 6, 4) + 12]
+  }
+  
+  else
+  {
+     data <- data[, c(3, 5, 6, 4) + 18]
+  }
+  
+  data
+}
