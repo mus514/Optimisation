@@ -126,14 +126,14 @@ basic_calcul <- function(liste, sheet, opt_unsolved = FALSE)
 # Conparaison of the complex results 
 
 tri_calculs <- function(liste, sheet, h = 0, inv = "", m = 0, ord = 0, 
-                        col = "", vehicule, best_case = FALSE)
+                        col = "", vehicule)
 {
   data <-liste[[sheet]]
   
   resultat <- vector()
   
   ##
-  if((h & m) != 0 & inv != "" & ord == 0)
+  if((h & m) != 0 && inv != "" && ord == 0)
   {
     
     data <- subset(data, data[["H"]] %in% h & data[["Inventory"]] %in% inv &
@@ -165,7 +165,7 @@ tri_calculs <- function(liste, sheet, h = 0, inv = "", m = 0, ord = 0,
     resultat[c(2, 3)] <- format(resultat[c(2, 3)] * 100, scientific = F)
   }
   
-  else if(ord != 0 & (m & h) == 0 & inv == "")
+  else if(ord != 0 && (m & h) == 0 && inv == "")
   {
     data <- subset(data, data[["Ordering"]] %in% ord)
     
@@ -215,9 +215,11 @@ tri_calculs <- function(liste, sheet, h = 0, inv = "", m = 0, ord = 0,
         data <- data[, 28]
       }
     }
+    
+    resultat <- sum(data, na.rm = T)
   }
   
-  else if(inv != "" & (h & m & ord) == 0)
+  else if(inv != "" && (h & m & ord) == 0)
   {
     data <- subset(data,data[["Inventory"]] %in% inv)
     
@@ -265,7 +267,7 @@ tri_best <- function(liste, sheet, ord)
   data <- liste[[sheet]]
   
   data <- subset(data, data[["Inventory"]] %in% "low" & 
-                   data[["Ordering"]] %in%ord)
+                   data[["Ordering"]] %in% ord)
   
   data <- data[ ,c(9, 10, 15, 16, 21, 22, 27, 28)]
   
@@ -292,7 +294,7 @@ tri_best <- function(liste, sheet, ord)
 
 ### Tables
 
-data_cons <- function()
+make_data <- function()
 {
   
   data_list <- list()
@@ -429,7 +431,8 @@ data_cons <- function()
   
   title_9 <- rep(c("Gap", "%Opt", "%Unsolved", "time"), 8)
   
-  title_10 <- c(rep("", 3), "ARF", rep("", 3), "SF", rep("", 3))
+  title_10 <- c(rep("", 3), rep(c("ARF", rep("", 3), "SF", rep("", 3)), 4))
+  
   
   temp <- vector()
   temp_1 <- vector()
@@ -465,23 +468,103 @@ data_cons <- function()
     }
   }
   
+  temp_1 <- rbind(title_9, temp_1)
   
-    
-    
-    
-    
-    
-    
+  temp_1 <- cbind(title_6, title_7, title_8, temp_1)
+  
+  temp_1 <- as.data.frame(temp_1)
+  
+  names(temp_1) <- title_10
+  
+  data_list[["ARF vs SF with subset"]] <- temp_1
   
   
+  # Number Optimal solution
   
+  title_11 <- c("Ordering", rep(c("SF", "vr", title_5), 4))
+  
+  title_12 <- c("", "2 Vehicles", rep("", 8), "3 Vehicles", rep("", 8), 
+  "4 Vehicles", rep("", 8), "5 Vehicles", rep("", 8))
+  
+  temp <- c("SF", "vr",title_5)
+  
+  temp_1 <- vector()
+  
+  temp_2 <- rep(0, 15)
+  
+  for(i in 2:5)
+  {
+    for(j in temp)
+    {
+      for(k in 1:15)
+      {
+        if(j == "SF")
+          temp_2[k] <- tri_calculs(arf_sf, "SF", ord = k, vehicule = i, 
+                                   col = "Opt")
+        else
+          temp_2[k] <- tri_calculs(sbc, j, ord = k, vehicule = i, 
+                                   col = "Opt")
+      }
+      
+      temp_1 <- cbind(temp_1, temp_2)
+      temp_2 <- vector()
+    }
+  }
+  
+  temp_1 <- cbind(1:15, temp_1)
+  
+  temp_1 <- rbind(title_11, temp_1)
+  
+  temp_1 <- as.data.frame(temp_1)
+  
+  names(temp_1) <- title_12
+  
+  data_list[["Number of optimal solution"]] <- temp_1
+
+  
+  # Number of Unsolved
+  
+  temp_1 <- vector()
+  
+  temp_2 <- rep(0, 15)
+  
+  for(i in 2:5)
+  {
+    for(j in temp)
+    {
+      for(k in 1:15)
+      {
+        if(j == "SF")
+          temp_2[k] <- tri_calculs(arf_sf, "SF", ord = k, vehicule = i, 
+                                   col = "Unsolved")
+        else
+          temp_2[k] <- tri_calculs(sbc, j, ord = k, vehicule = i, 
+                                   col = "Unsolved")
+      }
+      
+      temp_1 <- cbind(temp_1, temp_2)
+      temp_2 <- vector()
+    }
+  }
+  
+  temp_1 <- cbind(1:15, temp_1)
+  
+  temp_1 <- rbind(title_11, temp_1)
+  
+  temp_1 <- as.data.frame(temp_1)
+  
+  names(temp_1) <- title_12
+  
+  data_list[["Number of Unsolved instances"]] <- temp_1
+  
+  # High and Low : Average and sum
   
   
   return (write_xlsx(data_list, "resultat_basic.xlsx"))
   
 }
 
-
+make_data()
 
 
 
