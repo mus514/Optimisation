@@ -557,7 +557,53 @@ make_data <- function()
   
   data_list[["Number of Unsolved instances"]] <- temp_1
   
+  
   # High and Low : Average and sum
+  
+  title_13 <- c("", rep(c("Gap", "Time", "#Opt", "#Unsolver"), 8))
+  
+  title_14 <- c("", rep(c("Avrage", "", "Sum", ""), 8))
+  
+  title_15 <- c("", rep(c("High inventory cost", rep("", 3), 
+                          "Low inventory cost", rep("", 3)), 4))
+  
+  title_16 <- c("", "2 Vehicles", rep("", 7), "3 Vehicles", rep("", 7),
+                "4 Vehicles", rep("", 7), "5 Vehicles", rep("", 7))
+  
+
+  temp_1 <- vector()
+  
+  temp_2 <- vector()
+  
+  for(i in temp)
+  {
+    for(j in 2:5)
+    {
+      for(k in c("high", "low"))
+      {
+        if(i == "SF")
+          temp_2 <- append(temp_2, tri_calculs(arf_sf, "SF", inv = k, 
+                                               vehicule = j))
+        else
+          temp_2 <- append(temp_2, tri_calculs(sbc, i, inv = k, 
+                                               vehicule = j))
+      }
+    }
+    
+    temp_1 <- rbind(temp_1, temp_2)
+    temp_2 <- vector()
+  }
+  
+  temp_1 <- cbind(temp, temp_1)
+  
+  temp_1 <- rbind(title_15, title_14, title_13, temp_1)
+  
+  temp_1 <- as.data.frame(temp_1)
+  
+  names(temp_1) <- title_16
+  
+  data_list[["Average High and Low"]] <- temp_1
+  
   
   
   return (write_xlsx(data_list, "resultat_basic.xlsx"))
