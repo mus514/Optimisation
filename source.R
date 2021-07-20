@@ -770,7 +770,7 @@ make_tables <- function(liste, arf_sf, sbc, sbc_vc)
   
   data_list[["Best_vs_ARF_Inventory"]] <- temp_1
   
-  return (write_xlsx(data_list, "resultat_basic.xlsx"))
+  return (write_xlsx(data_list, "result.xlsx"))
   
 }
 
