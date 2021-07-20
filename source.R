@@ -6,7 +6,7 @@ library("readxl")
 library("writexl")
 library("stringr")
 
-# Setting directory
+## Setting directory
 setwd("~/Google drive/data_analysis")
 
 ###
