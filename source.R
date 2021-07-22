@@ -85,6 +85,44 @@ importFile <- function(file)
 }
 
 ###
+### find_missing(liste)
+###
+## find_missing : find missing run Time
+##
+## Argument (liste) : list of data frame
+##
+## Output : list of data
+##
+## Example : find_missing(sbc)
+##
+
+find_missing <- function(liste)
+{
+  data <- list()
+  
+  temp <- vector()
+  
+  for(j in names(liste))
+  {
+    for(k in 1:2560)
+    {
+      for(l in c(8, 14, 20, 26))
+      {
+        if(is.na(liste[[j]][k, l]))
+          temp <- append(temp, k + 2)
+      }
+    }
+    
+    data[[j]] <- as.data.frame(unique(temp))
+    temp <- vector()
+  }
+  
+  data
+}
+
+
+
+###
 ### standard_calculs(liste, sheet, opt_unsolved = FALSE)
 ###
 ## standard_calculs: Calcul standard formulation ans symmetry breaking constraints
@@ -780,5 +818,9 @@ sbc <- importFile("SBC.xlsx")
 arf_sf <- importFile("ARF - SF.xlsx")
 sbc_vc <- importFile("SBC - VC.xlsx")
 my_calculs <- make_calculs(arf_sf, sbc, sbc_vc)
-make_tables(my_calculs, arf_sf, sbc, sbc_vc)
+# write_xlsx(my_calculs, "calculs.xlsx")
+# write_xlsx(arf_sf, "1.xlsx")
+# write_xlsx(sbc, "2.xlsx")
+# write_xlsx(sbc_vc, "3.xlsx")
+#make_tables(my_calculs, arf_sf, sbc, sbc_vc)
 
