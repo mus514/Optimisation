@@ -45,17 +45,17 @@ importFile <- function(file)
   {
     data <- read_excel(file, sheet = sheet[i])
     
-    data <- data[2:2561, c(1, 2, 4, 5, 6, 7, 8, 9, 16, 17, 18, 19, 
+    data <- data[2:2561, c(1, 2, 3, 4, 5, 6, 7, 8, 9, 16, 17, 18, 19, 
                            20, 21, 28, 29, 30, 31, 32, 33, 40, 41,
                            42, 43, 44, 45, 52, 53)]
     
-    names(data)[1:4] <- c("H", "Inventory", "n", "Ordering")
+    names(data)[1:5] <- c("H", "Inventory", "#", "n", "Ordering")
     
     name <- c("UB", "LB", "Gap", "Time", "Opt", "Unsolved")
     
     k <- 2
     
-    for(a in c(5, 11, 17, 23))
+    for(a in c(6, 12, 18, 24))
     {
       for(j in 0:5)
       {
@@ -68,7 +68,7 @@ importFile <- function(file)
     data[,1] <- sapply(data[,1], as.numeric)
     data[,2] <- sapply(data[,2], as.character)
     
-    for(s in 3:28)
+    for(s in 3:29)
     {
       data[ ,s] <- sapply(data[ ,s], as.numeric)
     }
@@ -91,7 +91,7 @@ importFile <- function(file)
 ##
 ## Argument (liste) : list of data frame
 ##
-## Output : list of data
+## Output : list file name (.json)
 ##
 ## Example : find_missing(sbc)
 ##
@@ -106,10 +106,23 @@ find_missing <- function(liste)
   {
     for(k in 1:2560)
     {
-      for(l in c(8, 14, 20, 26))
+      for(l in c(9, 15, 21, 27))
       {
         if(is.na(liste[[j]][k, l]))
-          temp <- append(temp, k + 2)
+        {
+          if(liste[[j]][["Ordering"]][k] == 0)
+          {
+            temp <- append(temp, paste0("absH", liste[[j]][["H"]][k], liste[[j]][["Inventory"]][k],
+                                    "_", liste[[j]][["#"]][k], "n", liste[[j]][["n"]][k], ".json"))
+          }
+          
+          else
+          {
+            temp <- append(temp, paste0("absH", liste[[j]][["H"]][k], liste[[j]][["Inventory"]][k],
+                                       "_", liste[[j]][["#"]][k], "n",liste[[j]][["n"]][k],"_", 
+                                       liste[[j]][["Ordering"]][k], ".json"))
+          }
+        }  
       }
     }
     
@@ -119,8 +132,6 @@ find_missing <- function(liste)
   
   data
 }
-
-
 
 ###
 ### standard_calculs(liste, sheet, opt_unsolved = FALSE)
@@ -141,7 +152,7 @@ find_missing <- function(liste)
 standard_calculs <- function(liste, sheet, opt_unsolved = FALSE)
 {
   data <- liste[[sheet]]
-  data <- data[, -1:-4]
+  data <- data[, -1:-5]
   
   resultat <- 0
   
@@ -220,7 +231,7 @@ subset_calculs <- function(liste, sheet, h = 0, inv = "", m = 0, ord = 0,
     data <- subset(data, data[["H"]] %in% h & data[["Inventory"]] %in% inv &
                      data[["n"]] %in% m)
     
-    data <- data[, -1:-4]
+    data <- data[, -1:-5]
     
     if(vehicles == 2)
     {
@@ -254,30 +265,6 @@ subset_calculs <- function(liste, sheet, h = 0, inv = "", m = 0, ord = 0,
     {
       if(vehicles == 2)
       {
-        data <- data[, 9]
-      }
-      
-      else if(vehicles == 3)
-      {
-        data <- data[,  15]
-      }
-      
-      else if(vehicles == 4)
-      {
-        data <- data[, 21]
-      }
-      
-      else
-      {
-        data <- data[, 27]
-      }
-      
-    }
-    
-    else
-    {
-      if(vehicles == 2)
-      {
         data <- data[, 10]
       }
       
@@ -295,6 +282,30 @@ subset_calculs <- function(liste, sheet, h = 0, inv = "", m = 0, ord = 0,
       {
         data <- data[, 28]
       }
+      
+    }
+    
+    else
+    {
+      if(vehicles == 2)
+      {
+        data <- data[, 11]
+      }
+      
+      else if(vehicles == 3)
+      {
+        data <- data[,  17]
+      }
+      
+      else if(vehicles == 4)
+      {
+        data <- data[, 23]
+      }
+      
+      else
+      {
+        data <- data[, 29]
+      }
     }
     
     resultat <- sum(data, na.rm = T)
@@ -304,7 +315,7 @@ subset_calculs <- function(liste, sheet, h = 0, inv = "", m = 0, ord = 0,
   {
     data <- subset(data,data[["Inventory"]] %in% inv)
     
-    data <- data[, -1:-4]
+    data <- data[, -1:-5]
     
     if(vehicles == 2)
     {
@@ -355,7 +366,7 @@ compare_calculs <- function(liste, sheet, ord)
   data <- subset(data, data[["Inventory"]] %in% "high" & 
                    data[["Ordering"]] %in%ord)
   
-  data <- data[ ,c(9, 10, 15, 16, 21, 22, 27, 28)]
+  data <- data[ ,c(10, 11, 16, 17, 22, 23, 28, 29)]
   
   result_1 <- apply(data, 2, sum, na.rm = T)
   
@@ -364,7 +375,7 @@ compare_calculs <- function(liste, sheet, ord)
   data <- subset(data, data[["Inventory"]] %in% "low" & 
                    data[["Ordering"]] %in% ord)
   
-  data <- data[ ,c(9, 10, 15, 16, 21, 22, 27, 28)]
+  data <- data[ ,c(10, 11, 16, 17, 22, 23, 28, 29)]
   
   result_2 <- apply(data, 2, sum, na.rm = T)
   
@@ -817,10 +828,13 @@ make_tables <- function(liste, arf_sf, sbc, sbc_vc)
 sbc <- importFile("SBC.xlsx")
 arf_sf <- importFile("ARF - SF.xlsx")
 sbc_vc <- importFile("SBC - VC.xlsx")
-my_calculs <- make_calculs(arf_sf, sbc, sbc_vc)
-# write_xlsx(my_calculs, "calculs.xlsx")
-# write_xlsx(arf_sf, "1.xlsx")
-# write_xlsx(sbc, "2.xlsx")
-# write_xlsx(sbc_vc, "3.xlsx")
+
+
+
+#my_calculs <- make_calculs(arf_sf, sbc, sbc_vc)
+#write_xlsx(my_calculs, "calculs.xlsx")
+#write_xlsx(arf_sf, "1.xlsx")
+#write_xlsx(sbc, "2.xlsx")
+#write_xlsx(sbc_vc, "3.xlsx")
 #make_tables(my_calculs, arf_sf, sbc, sbc_vc)
 
