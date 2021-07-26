@@ -100,7 +100,9 @@ find_missing <- function(liste)
 {
   data <- list()
   
-  temp <- vector()
+  temp_1 <- vector()
+  temp_2 <- vector()
+  temp_3 <- vector()
   
   for(j in names(liste))
   {
@@ -110,27 +112,34 @@ find_missing <- function(liste)
       {
         if(is.na(liste[[j]][k, l]))
         {
-          if(liste[[j]][["Ordering"]][k] == 0)
-          {
-            temp <- append(temp, paste0("absH", liste[[j]][["H"]][k], liste[[j]][["Inventory"]][k],
-                                    "_", liste[[j]][["#"]][k], "n", liste[[j]][["n"]][k], ".json"))
-          }
           
-          else
-          {
-            temp <- append(temp, paste0("absH", liste[[j]][["H"]][k], liste[[j]][["Inventory"]][k],
-                                       "_", liste[[j]][["#"]][k], "n",liste[[j]][["n"]][k],"_", 
-                                       liste[[j]][["Ordering"]][k], ".json"))
-          }
-        }  
-      }
+          temp_1 <- append(temp_1, paste0("absH", liste[[j]][["H"]][k], liste[[j]][["Inventory"]][k],
+                                    "_", liste[[j]][["#"]][k], "n", liste[[j]][["n"]][k], ".json"))
+          
+          temp_2 <- append(temp_2, liste[[j]][["Ordering"]][k])
+          
+          if(l == 9) 
+            temp_4 <- 1
+          if(l == 15)
+            temp_4 <- 2
+          if(l == 21)
+            temp_4 <- 3
+          if(l == 27)
+            temp_4 <- 4
+          
+          temp_3 <- append(temp_3, switch (temp_4, "2V", "3V", "4V", "5V"))
+        }
+      }  
     }
     
-    data[[j]] <- as.data.frame(unique(temp))
-    temp <- vector()
+    temp_1 <- cbind(temp_1, temp_2, temp_3)
+    data[[j]] <- as.data.frame(temp_1)
+    temp_1 <- vector()
+    temp_2 <- vector()
+    temp_3 <- vector()
   }
   
-  data
+data
 }
 
 ###
@@ -218,7 +227,7 @@ standard_calculs <- function(liste, sheet, opt_unsolved = FALSE)
 ##
 
 subset_calculs <- function(liste, sheet, h = 0, inv = "", m = 0, ord = 0, 
-                        col = "", vehicles)
+                           col = "", vehicles)
 {
   data <-liste[[sheet]]
   
@@ -471,23 +480,23 @@ make_calculs <- function(arf_sf, sbc, sbc_vc)
   
   temp <- vector()
   name_1 <- names(sbc)[str_detect(names(sbc), "vc")]
-
+  
   for(i in name_1)
   {
     temp <- rbind(temp, standard_calculs(sbc, i))
   }
-
+  
   name_2 <- names(sbc_vc)
-
+  
   for(i in name_2)
   {
     temp <- rbind(temp, standard_calculs(sbc_vc, i))
   }
-
+  
   temp <- as.data.frame(temp)
-
+  
   data_list[["Combined_results"]] <- temp
-
+  
   
   # Sub_ARF_SF
   
@@ -545,10 +554,10 @@ make_calculs <- function(arf_sf, sbc, sbc_vc)
       {
         if(j == "SF")
           temp_2[k] <- subset_calculs(arf_sf, "SF", ord = k, vehicles = i,
-                                   col = "Opt")
+                                      col = "Opt")
         else
           temp_2[k] <- subset_calculs(sbc, j, ord = k, vehicles = i,
-                                   col = "Opt")
+                                      col = "Opt")
       }
       
       temp_1 <- cbind(temp_1, temp_2)
@@ -574,10 +583,10 @@ make_calculs <- function(arf_sf, sbc, sbc_vc)
       {
         if(j == "SF")
           temp_2[k] <- subset_calculs(arf_sf, "SF", ord = k, vehicles = i,
-                                   col = "Unsolved")
+                                      col = "Unsolved")
         else
           temp_2[k] <- subset_calculs(sbc, j, ord = k, vehicles = i,
-                                   col = "Unsolved")
+                                      col = "Unsolved")
       }
       
       temp_1 <- cbind(temp_1, temp_2)
@@ -604,10 +613,10 @@ make_calculs <- function(arf_sf, sbc, sbc_vc)
       {
         if(i == "SF")
           temp_2 <- append(temp_2, subset_calculs(arf_sf, "SF", inv = k,
-                                               vehicles = j))
+                                                  vehicles = j))
         else
           temp_2 <- append(temp_2, subset_calculs(sbc, i, inv = k,
-                                               vehicles = j))
+                                                  vehicles = j))
       }
     }
     
@@ -829,7 +838,9 @@ sbc <- importFile("SBC.xlsx")
 arf_sf <- importFile("ARF - SF.xlsx")
 sbc_vc <- importFile("SBC - VC.xlsx")
 
-
+# write_xlsx(find_missing(arf_sf), "ARF_SF-missing.xlsx")
+# write_xlsx(find_missing(sbc), "SBC-missing.xlsx")
+# write_xlsx(find_missing(sbc_vc), "SBC_VC-missing.xlsx")
 
 #my_calculs <- make_calculs(arf_sf, sbc, sbc_vc)
 #write_xlsx(my_calculs, "calculs.xlsx")
