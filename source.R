@@ -112,9 +112,19 @@ find_missing <- function(liste)
       {
         if(is.na(liste[[j]][k, l]))
         {
+          if(liste[[j]][["Ordering"]][k] == 0)
+            temp_1 <- append(temp_1, paste0("absH", liste[[j]][["H"]][k], 
+                                            liste[[j]][["Inventory"]][k],
+                                            "_", liste[[j]][["#"]][k], "n", 
+                                          liste[[j]][["n"]][k], ".dat"))
+          else
+            temp_1 <- append(temp_1, paste0("absH", liste[[j]][["H"]][k],
+                                            liste[[j]][["Inventory"]][k],
+                                            "_", liste[[j]][["#"]][k], "n", 
+                                            liste[[j]][["n"]][k], "_", liste[[j]][["Ordering"]][k],
+                                            ".dat"))
           
-          temp_1 <- append(temp_1, paste0("absH", liste[[j]][["H"]][k], liste[[j]][["Inventory"]][k],
-                                    "_", liste[[j]][["#"]][k], "n", liste[[j]][["n"]][k], ".json"))
+          
           
           temp_2 <- append(temp_2, liste[[j]][["Ordering"]][k])
           
@@ -127,7 +137,7 @@ find_missing <- function(liste)
           if(l == 27)
             temp_4 <- 4
           
-          temp_3 <- append(temp_3, switch (temp_4, "2V", "3V", "4V", "5V"))
+          temp_3 <- append(temp_3, switch (temp_4, 2, 3, 4, 5))
         }
       }  
     }
@@ -838,7 +848,7 @@ sbc <- importFile("SBC.xlsx")
 arf_sf <- importFile("ARF - SF.xlsx")
 sbc_vc <- importFile("SBC - VC.xlsx")
 
-# write_xlsx(find_missing(arf_sf), "ARF_SF-missing.xlsx")
+write_xlsx(find_missing(arf_sf), "ARF_SF-missing.xlsx")
 # write_xlsx(find_missing(sbc), "SBC-missing.xlsx")
 # write_xlsx(find_missing(sbc_vc), "SBC_VC-missing.xlsx")
 
