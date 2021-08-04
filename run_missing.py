@@ -3,7 +3,7 @@ import os.path
 import shutil, os
 
 
-def make_cdf(sheet, folder, vehicles, ordering):
+def make_cfg(sheet, folder, vehicles, ordering):
     scripte = f"""################################################################################
 #
 # Classic IRP solver: example of the input configuration file.
@@ -67,8 +67,11 @@ def copy_missing(file, sheet):
     try:
         os.mkdir(f"irp_lp_solver-master/input/missing_{sheet}")
         os.mkdir(f"irp_lp_solver-master/output/missing_{sheet}")
+        os.mkdir(f"irp_lp_solver-master/cfg_{sheet}")
+        os.mkdir(f"irp_lp_solver-master/sh_{sheet}")
+
         for i in ordering:
-            if(i == 0):
+            if i == 0:
                 os.mkdir(f"irp_lp_solver-master/input/missing_{sheet}/Original")
                 os.mkdir(f"irp_lp_solver-master/output/missing_{sheet}/Original")
                 for j in data[data["ordering"] == 0]["vehicles"].unique():
@@ -80,19 +83,32 @@ def copy_missing(file, sheet):
 
                     if len(temp) <= 8 :
                         os.mkdir(f"irp_lp_solver-master/input/missing_{sheet}/Original/V{j}/{0}")
+                        file_name = f"irp_lp_solver-master/cfg_{sheet}/{sheet}-Original-V{j}-0.cfg"
+                        file_name = open(file_name, 'a')
+                        file_name.write(make_cfg(sheet, 0, j, "Original"))
+                        file_name.close()
 
                     if len(temp) > 8:
 
-                        if(len(temp) % 8 == 0):
+                        if len(temp) % 8 == 0:
                             l = int((len(temp) - len(temp) % 8) / 8)
                             for k in range(l):
                                 os.mkdir(f"irp_lp_solver-master/input/missing_{sheet}/Original/V{j}/{k}")
+                                file_name = f"irp_lp_solver-master/cfg_{sheet}/{sheet}-Original-V{j}-{k}.cfg"
+                                file_name = open(file_name, 'a')
+                                file_name.write(make_cfg(sheet, k, j, "Original"))
+                                file_name.close()
 
 
                         else :
                             l = int((len(temp) - len(temp) % 8) / 8)
                             for k in range(l + 1):
                                 os.mkdir(f"irp_lp_solver-master/input/missing_{sheet}/Original/V{j}/{k}")
+                                file_name = f"irp_lp_solver-master/cfg_{sheet}/{sheet}-Original-V{j}-{k}.cfg"
+                                file_name = open(file_name, 'a')
+                                file_name.write(make_cfg(sheet, k, j, "Original"))
+                                file_name.close()
+
 
 
             else:
@@ -108,6 +124,10 @@ def copy_missing(file, sheet):
 
                     if len(temp) <= 8:
                         os.mkdir(f"irp_lp_solver-master/input/missing_{sheet}/{i}/V{j}/{0}")
+                        file_name = f"irp_lp_solver-master/cfg_{sheet}/{sheet}-{i}-V{j}-0.cfg"
+                        file_name = open(file_name, 'a')
+                        file_name.write(make_cfg(sheet, 0, j, i))
+                        file_name.close()
 
                     if len(temp) > 8:
 
@@ -115,12 +135,20 @@ def copy_missing(file, sheet):
                             l = int((len(temp) - len(temp) % 8) / 8)
                             for k in range(l):
                                 os.mkdir(f"irp_lp_solver-master/input/missing_{sheet}/{i}/V{j}/{k}")
+                                file_name = f"irp_lp_solver-master/cfg_{sheet}/{sheet}-{i}-V{j}-{k}.cfg"
+                                file_name = open(file_name, 'a')
+                                file_name.write(make_cfg(sheet, k, j, i))
+                                file_name.close()
 
 
                         else:
                             l = int((len(temp) - len(temp) % 8) / 8)
                             for k in range(l + 1):
                                 os.mkdir(f"irp_lp_solver-master/input/missing_{sheet}/{i}/V{j}/{k}")
+                                file_name = f"irp_lp_solver-master/cfg_{sheet}/{sheet}-{i}-V{j}-{k}.cfg"
+                                file_name = open(file_name, 'a')
+                                file_name.write(make_cfg(sheet, k, j, i))
+                                file_name.close()
 
     except:
         print("Folder Already exist, delete all the folders and restart !!!")
@@ -143,7 +171,7 @@ def copy_missing(file, sheet):
                 if len(temp) > 8:
                     l = int((len(temp) - len(temp) % 8) / 8)
 
-                    if (len(temp) % 8 == 0):
+                    if len(temp) % 8 == 0:
                         for k in range(0, l*8, 8):
                             temp_1.append(temp[k:k+8])
 
@@ -173,7 +201,7 @@ def copy_missing(file, sheet):
                 if len(temp) > 8:
                     l = int((len(temp) - len(temp) % 8) / 8)
 
-                    if (len(temp) % 8 == 0):
+                    if len(temp) % 8 == 0:
                         for k in range(0, l*8, 8):
                             temp_1.append(temp[k:k+8])
 
@@ -190,9 +218,9 @@ def copy_missing(file, sheet):
     return (data)
 
 
-print(make_cdf("SF", 2, 5, "Original"))
+#print(make_cfg("SF", 2, 5, "Original"))
 
-#if __name__ == "__main__":
+if __name__ == "__main__":
 
-   #copy_missing("ARF_SF-missing", "SF")
+   copy_missing("ARF_SF-missing", "SF")
    #copy_missing("SBC-missing", "cos")
