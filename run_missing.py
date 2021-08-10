@@ -61,23 +61,23 @@ sec_strategy = 1
 ###
 ##
 
-def make_sh(sheet, ordering,  email,time, beginning, end, default = "SLURM_ARRAY_TASK_ID"):
+def make_sh(sheet, ordering, time, end, default = "SLURM_ARRAY_TASK_ID"):
     scripte = f"""
     #!/bin/bash
 #SBATCH --account=def-mardar
-#SBATCH --mail-user={email}
+#SBATCH --mail-user=bouhsen.m@gmail.com
 #SBATCH --mail-type=FAIL
 #SBATCH --job-name=irp-solver
 #SBATCH --time={time}:00:00
 #SBATCH --cpus-per-task=2
 #SBATCH --mem-per-cpu=16G
 #SBATCH --output=log/%x-%j.out
-#SBATCH --array={beginning}-{end}
+#SBATCH --array=1-{end}
 module load StdEnv/2020
 module loadg gcc/9.3.0
 module load gurobi
 echo "Starting task $SLURM_ARRAY_TASK_ID"
-./build/irp_solver -f ./input/missing_{sheet}/{sheet}-{ordering}-$"'{default}'".cfg
+./build/irp_solver -f ./cdf_{sheet}/{sheet}-{ordering}-$"'{default}'".cfg
     """
     return scripte
 
@@ -99,6 +99,7 @@ def copy_missing(file, sheet):
         os.mkdir(f"irp_lp_solver-master/cfg_{sheet}")
         os.mkdir(f"irp_lp_solver-master/sh_{sheet}")
         counter = 1
+        end = []
 
         for i in ordering:
             if i == 0:
@@ -185,12 +186,16 @@ def copy_missing(file, sheet):
                                 file_name.close()
                                 counter += 1
 
+            end.append(counter - 1)
             counter = 1
+
 
     except:
         print("Folder Already exist, delete all the folders and restart !!!")
 
     # Coping and dividing the instances
+    time = []
+    counter = 0;
     for i in ordering:
         if(i == 0):
             for j in data[data["ordering"] == 0]["vehicles"].unique():
@@ -202,6 +207,7 @@ def copy_missing(file, sheet):
                     for k in temp:
                         shutil.copy(f"irp_lp_solver-master/input/Instances/Original/{k}",
                                     f"irp_lp_solver-master/input/missing_{sheet}/Original/V{j}/0")
+                        counter += 1
 
                 temp_1 = []
 
@@ -221,6 +227,7 @@ def copy_missing(file, sheet):
                         for n in temp_1[k]:
                             shutil.copy(f"irp_lp_solver-master/input/Instances/Original/{n}",
                                         f"irp_lp_solver-master/input/missing_{sheet}/Original/V{j}/{k}")
+                            counter += 1
 
         else:
             for j in data[data["ordering"] == i]["vehicles"].unique():
@@ -232,6 +239,7 @@ def copy_missing(file, sheet):
                     for k in temp:
                         shutil.copy(f"irp_lp_solver-master/input/Instances/{i}/{k}",
                                     f"irp_lp_solver-master/input/missing_{sheet}/{i}/V{j}/0")
+                        counter += 1
 
                 temp_1 = []
 
@@ -251,11 +259,31 @@ def copy_missing(file, sheet):
                         for n in temp_1[k]:
                             shutil.copy(f"irp_lp_solver-master/input/Instances/{i}/{n}",
                                         f"irp_lp_solver-master/input/missing_{sheet}/{i}/V{j}/{k}")
+                            counter += 1
+        time.append(counter)
+        counter = 0
 
-    return (data)
+    # create .sh file
+
+    counter = 0
+    for i in ordering:
+        if(i == 0):
+            file_name = f"irp_lp_solver-master/sh_{sheet}/{sheet}-Original-1-{end[counter]}.sh"
+            file_name = open(file_name, 'a')
+            file_name.write(make_sh(sheet, "Original", time[counter], end[counter]))
+            file_name.close()
+
+        else:
+            file_name = f"irp_lp_solver-master/sh_{sheet}/{sheet}-{i}-1-{end[counter]}.sh"
+            file_name = open(file_name, 'a')
+            file_name.write(make_sh(sheet, i, time[counter], end[counter]))
+            file_name.close()
+
+        counter += 1
+
+    print("See irp_lp_solver-master")
 
 
-#print(make_cfg("SF", 2, 5, "Original"))
 
 if __name__ == "__main__":
 
