@@ -83,7 +83,7 @@ echo "Starting task $SLURM_ARRAY_TASK_ID"
 ##
 ###
 ##
-def run_sh(vector, sheet):
+def run_scripte(vector, sheet):
     file = open("irp_lp_solver-master/run.sh", 'w')
     file.write("#!/bin/bash \n \n \n")
     for i in vector:
@@ -289,7 +289,7 @@ def copy_missing(file, sheet):
 
                 counter += 1
 
-            run_sh(file, sheet)
+            run_scripte(file, sheet)
 
 
     except:
