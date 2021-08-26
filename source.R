@@ -1,5 +1,5 @@
 ###
-### Mustapha.B
+### Mustapha Bouhsen
 ###
 
 library("readxl")
@@ -848,7 +848,7 @@ sbc <- importFile("SBC.xlsx")
 arf_sf <- importFile("ARF - SF.xlsx")
 sbc_vc <- importFile("SBC - VC.xlsx")
 
-write_xlsx(find_missing(arf_sf), "ARF_SF-missing.xlsx")
+#write_xlsx(find_missing(arf_sf), "ARF_SF-missing.xlsx")
 # write_xlsx(find_missing(sbc), "SBC-missing.xlsx")
 # write_xlsx(find_missing(sbc_vc), "SBC_VC-missing.xlsx")
 
