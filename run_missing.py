@@ -1,12 +1,16 @@
+# Mustapha Bouhsen
+
 import pandas as pd
 import os.path
 import shutil, os
 
-##
-###
-##
 
 def make_cfg(sheet, folder, vehicles, ordering):
+    """
+
+    :return: cfg scripte
+    """
+
     scripte = f"""################################################################################
 #
 # Classic IRP solver: example of the input configuration file.
@@ -57,11 +61,11 @@ sec_strategy = 1
     return scripte
 
 
-##
-###
-##
+def make_sh(sheet, ordering, time, end, default="SLURM_ARRAY_TASK_ID"):
+    """
 
-def make_sh(sheet, ordering, time, end, default = "SLURM_ARRAY_TASK_ID"):
+    :return: Sh scripte
+    """
     scripte = f"""
 #!/bin/bash
 #SBATCH --account=def-mardar
@@ -80,10 +84,13 @@ echo "Starting task $SLURM_ARRAY_TASK_ID"
 ./build/irp_solver -f ./cdf_{sheet}/{sheet}-{ordering}-$"'{default}'".cfg
     """
     return scripte
-##
-###
-##
+
+
 def run_scripte(vector, sheet):
+    """
+
+    :return: run scripte
+    """
     file = open("irp_lp_solver-master/run.sh", 'w')
     file.write("#!/bin/bash \n \n \n")
     for i in vector:
@@ -96,13 +103,15 @@ def run_scripte(vector, sheet):
 # in each part we copy maximun 8 instances,
 ##
 
-def copy_missing(file, sheet):
+def make_missing(file, sheet):
+    # Import data
+    data = pd.read_excel(file + ".xlsx", sheet_name=sheet)
 
-    data = pd.read_excel(file+".xlsx", sheet_name= sheet)
+    # Sort by all the orderings
     ordering = data["ordering"].unique()
 
-    # Creating the folders
     try:
+        # Creating the folders for the input, output, cfg and sh
         os.mkdir(f"irp_lp_solver-master/input/missing_{sheet}")
         os.mkdir(f"irp_lp_solver-master/output/missing_{sheet}")
         os.mkdir(f"irp_lp_solver-master/cfg_{sheet}")
@@ -111,17 +120,27 @@ def copy_missing(file, sheet):
         end = []
 
         for i in ordering:
+
+            # case if the ordering is "Original"
             if i == 0:
+                # create empty folder for input and output
                 os.mkdir(f"irp_lp_solver-master/input/missing_{sheet}/Original")
                 os.mkdir(f"irp_lp_solver-master/output/missing_{sheet}/Original")
+
                 for j in data[data["ordering"] == 0]["vehicles"].unique():
+                    # field the empty Original folder by the missing vehicles
                     os.mkdir(f"irp_lp_solver-master/input/missing_{sheet}/Original/V{j}")
                     os.mkdir(f"irp_lp_solver-master/output/missing_{sheet}/Original/V{j}")
 
                     temp = data[data["ordering"] == 0]
                     temp = temp[temp["vehicles"] == j]
 
-                    if len(temp) <= 8 :
+                    # we dived the missing instances for each vehicles by group of 8. If we have 8 or less we create one
+                    # folder. Else, we calculate (number of missing instances modulo 8), if the rest is not 0 we add
+                    # another folder to put the rest. In the same time we create the cfg files and we put them in the
+                    # folders
+
+                    if len(temp) <= 8:
                         os.mkdir(f"irp_lp_solver-master/input/missing_{sheet}/Original/V{j}/{0}")
                         file_name = f"irp_lp_solver-master/cfg_{sheet}/{sheet}-Original-{counter}.cfg"
                         file_name = open(file_name, 'a')
@@ -141,7 +160,7 @@ def copy_missing(file, sheet):
                                 file_name.close()
                                 counter += 1
 
-                        else :
+                        else:
                             l = int((len(temp) - len(temp) % 8) / 8)
                             for k in range(l + 1):
                                 os.mkdir(f"irp_lp_solver-master/input/missing_{sheet}/Original/V{j}/{k}")
@@ -151,7 +170,7 @@ def copy_missing(file, sheet):
                                 file_name.close()
                                 counter += 1
 
-
+            # Other ordering from 1 to 15. Same logic as Original case
             else:
                 os.mkdir(f"irp_lp_solver-master/input/missing_{sheet}/{i}")
                 os.mkdir(f"irp_lp_solver-master/output/missing_{sheet}/{i}")
@@ -170,7 +189,6 @@ def copy_missing(file, sheet):
                         file_name.write(make_cfg(sheet, 0, j, i))
                         file_name.close()
                         counter += 1
-
 
                     if len(temp) > 8:
 
@@ -198,23 +216,29 @@ def copy_missing(file, sheet):
             end.append(counter - 1)
             counter = 1
 
-            # Coping and dividing the instances
-            time = []
+            # Coping and dividing the instances. We took the instance from the Instance in input and we copy them to the
+            # specific folder we already create in the previews code
+
+            time = []  # List of the times we need to run in CalculCanada
             counter = 0;
+
             for i in ordering:
+                # case if the ordering is "Original"
                 if (i == 0):
+
                     for j in data[data["ordering"] == 0]["vehicles"].unique():
                         temp = data[data["ordering"] == 0]
                         temp = temp[temp["vehicles"] == j]
                         temp = list(temp["name"])
 
+                        # Same logic as the previews code, We copy the instances by 8 or less
                         if len(temp) <= 8:
                             for k in temp:
                                 shutil.copy(f"irp_lp_solver-master/input/Instances/Original/{k}",
                                             f"irp_lp_solver-master/input/missing_{sheet}/Original/V{j}/0")
                                 counter += 1
 
-                        temp_1 = []
+                        temp_1 = []  # List of the names of the missing instances
 
                         if len(temp) > 8:
                             l = int((len(temp) - len(temp) % 8) / 8)
@@ -234,6 +258,7 @@ def copy_missing(file, sheet):
                                                 f"irp_lp_solver-master/input/missing_{sheet}/Original/V{j}/{k}")
                                     counter += 1
 
+                # Other ordering from 1 to 15. Same logic as Original case
                 else:
                     for j in data[data["ordering"] == i]["vehicles"].unique():
                         temp = data[data["ordering"] == i]
@@ -269,7 +294,6 @@ def copy_missing(file, sheet):
                 counter = 0
 
             # create .sh file
-
             counter = 0
             file = []
             for i in ordering:
@@ -289,19 +313,16 @@ def copy_missing(file, sheet):
 
                 counter += 1
 
+            # Create the run scipte
             run_scripte(file, sheet)
 
 
     except:
         print("Folder Already exist, delete all the folders and restart !!!")
 
-
-
     print("End")
 
-
-
-if __name__ == "__main__":
-
-   copy_missing("ARF_SF-missing", "SF")
-   #copy_missing("SBC-missing", "cos")
+# if __name__ == "__main__":
+#
+#    copy_missing("ARF_SF-missing", "SF")
+#    #copy_missing("SBC-missing", "cos")
