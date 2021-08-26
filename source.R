@@ -1,5 +1,5 @@
 ###
-### Mustapha Bouhsen
+### Mustapha.B
 ###
 
 library("readxl")
@@ -100,9 +100,9 @@ find_missing <- function(liste)
 {
   data <- list()
   
-  temp_1 <- vector()
-  temp_2 <- vector()
-  temp_3 <- vector()
+  name <- vector()
+  ordering <- vector()
+  vehicles <- vector()
   
   for(j in names(liste))
   {
@@ -113,20 +113,20 @@ find_missing <- function(liste)
         if(is.na(liste[[j]][k, l]))
         {
           if(liste[[j]][["Ordering"]][k] == 0)
-            temp_1 <- append(temp_1, paste0("absH", liste[[j]][["H"]][k], 
-                                            liste[[j]][["Inventory"]][k],
-                                            "_", liste[[j]][["#"]][k], "n", 
-                                          liste[[j]][["n"]][k], ".dat"))
+            name <- append(name, paste0("absH", liste[[j]][["H"]][k], 
+                                        liste[[j]][["Inventory"]][k],
+                                        "_", liste[[j]][["#"]][k], "n", 
+                                        liste[[j]][["n"]][k], ".dat"))
           else
-            temp_1 <- append(temp_1, paste0("absH", liste[[j]][["H"]][k],
-                                            liste[[j]][["Inventory"]][k],
-                                            "_", liste[[j]][["#"]][k], "n", 
-                                            liste[[j]][["n"]][k], "_", liste[[j]][["Ordering"]][k],
-                                            ".dat"))
+            name <- append(name, paste0("absH", liste[[j]][["H"]][k],
+                                        liste[[j]][["Inventory"]][k],
+                                        "_", liste[[j]][["#"]][k], "n", 
+                                        liste[[j]][["n"]][k], "_", liste[[j]][["Ordering"]][k],
+                                        ".dat"))
           
           
           
-          temp_2 <- append(temp_2, liste[[j]][["Ordering"]][k])
+          ordering <- append(ordering, liste[[j]][["Ordering"]][k])
           
           if(l == 9) 
             temp_4 <- 1
@@ -137,19 +137,19 @@ find_missing <- function(liste)
           if(l == 27)
             temp_4 <- 4
           
-          temp_3 <- append(temp_3, switch (temp_4, 2, 3, 4, 5))
+          vehicles <- append(vehicles, switch (temp_4, 2, 3, 4, 5))
         }
       }  
     }
     
-    temp_1 <- cbind(temp_1, temp_2, temp_3)
-    data[[j]] <- as.data.frame(temp_1)
-    temp_1 <- vector()
-    temp_2 <- vector()
-    temp_3 <- vector()
+    name <- cbind(name, ordering, vehicles)
+    data[[j]] <- as.data.frame(name)
+    name <- vector()
+    ordering <- vector()
+    vehicles <- vector()
   }
   
-data
+  data
 }
 
 ###
@@ -848,8 +848,8 @@ sbc <- importFile("SBC.xlsx")
 arf_sf <- importFile("ARF - SF.xlsx")
 sbc_vc <- importFile("SBC - VC.xlsx")
 
-#write_xlsx(find_missing(arf_sf), "ARF_SF-missing.xlsx")
-# write_xlsx(find_missing(sbc), "SBC-missing.xlsx")
+write_xlsx(find_missing(arf_sf), "ARF_SF-missing.xlsx")
+#write_xlsx(find_missing(sbc), "SBC-missing.xlsx")
 # write_xlsx(find_missing(sbc_vc), "SBC_VC-missing.xlsx")
 
 #my_calculs <- make_calculs(arf_sf, sbc, sbc_vc)

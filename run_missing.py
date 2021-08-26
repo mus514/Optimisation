@@ -322,7 +322,6 @@ def make_missing(file, sheet):
 
     print("End")
 
-# if __name__ == "__main__":
-#
-#    copy_missing("ARF_SF-missing", "SF")
+if __name__ == "__main__":
+    copy_missing("ARF_SF-missing", "SF")
 #    #copy_missing("SBC-missing", "cos")
