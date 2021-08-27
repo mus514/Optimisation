@@ -7,7 +7,6 @@ import shutil, os
 
 def make_cfg(sheet, folder, vehicles, ordering):
     """
-
     :return: cfg scripte
     """
 
@@ -63,7 +62,6 @@ sec_strategy = 1
 
 def make_sh(sheet, ordering, time, end, default="SLURM_ARRAY_TASK_ID"):
     """
-
     :return: Sh scripte
     """
     scripte = f"""
@@ -88,7 +86,6 @@ echo "Starting task $SLURM_ARRAY_TASK_ID"
 
 def run_scripte(vector, sheet):
     """
-
     :return: run scripte
     """
     file = open("irp_lp_solver-master/run.sh", 'w')
@@ -323,5 +320,5 @@ def make_missing(file, sheet):
     print("End")
 
 if __name__ == "__main__":
-    copy_missing("ARF_SF-missing", "SF")
+    make_missing("ARF_SF-missing", "SF")
 #    #copy_missing("SBC-missing", "cos")
